@@ -5,12 +5,11 @@ An easy to use text and dialog based tool with a more advanced interaction for c
 ### Prerequisites
 * [.NET Framework 4.7.2](https://dotnet.microsoft.com/download/dotnet-framework/net472)
 * [Visual Studio 20XX](https://visualstudio.microsoft.com/vs/) (Only if you plan to contribute, solution has only been tested in VS 2019)
-### Installing
-For users:
-1. If you plan to just use the tool, see the [releases page](https://github.com/tamewater/Public_GMOD_Addon-Merger/releases).
-For developers:
+### Installing (For Users)
+1. See the [releases page](https://github.com/tamewater/Public_GMOD_Addon-Merger/releases).
+### Installing (For Developers)
 1. Clone this repository
-2. Open the solution file within the repository.
+2. Open the solution file within the root of the repository.
 3. Done! No extra setup should be necessary.
 
 ## Built With

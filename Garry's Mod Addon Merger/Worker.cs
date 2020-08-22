@@ -56,12 +56,13 @@ namespace Tamewater.GMOD_AddonMerger
         /// The function that each thread will run. Will process each addon it has been provided.
         /// </summary>
         /// <param name="infoObject">Should be an instance of ProcessingThreadInfo, contains the information the thread needs to execute with.</param>
-        private static void ProcessThread(object infoObject)
+        private void ProcessThread(object infoObject)
         {
             // Convert object to the correct type.
             ProcessingThreadInfo info = (ProcessingThreadInfo)infoObject;
 
             // Locals.
+            Worker instance = info.instance;
             int processingThreadNum = info.processingThreadNum;
             string[] addons = info.addonPaths;
             string outputDirectory = info.outputDirectoryPath;
@@ -71,11 +72,11 @@ namespace Tamewater.GMOD_AddonMerger
             // Process the addon folders.
             Console.WriteLine("{0} Started processing...", workerThreadString);
             Directory.CreateDirectory(outputDirectory);
-            for (int i = 0; i < addons.Length; i++)
+            for (int i=0; i<addons.Length; i++)
             {
                 string addonPath = addons[i];
                 Console.WriteLine("{0} Started processing addon: {1}", workerThreadString, addonPath);
-                ProcessDirectory(info.instance, outputDirectory, addonPath);
+                ProcessDirectory(instance, outputDirectory, addonPath);
                 Console.WriteLine("{0} Finished processing addon: {1}", workerThreadString, addonPath);
             }
             Console.WriteLine("{0} Finished merging {1} addons into {2}", workerThreadString, addons.Length, outputDirectory);
@@ -87,7 +88,7 @@ namespace Tamewater.GMOD_AddonMerger
         /// <param name="instance">The instance of Worker that this thread is working within.</param>
         /// <param name="outputPath">The path to place the found files within.</param>
         /// <param name="directoryPath">The path of the directory to look for files in.</param>
-        private static void ProcessDirectory(Worker instance, string outputPath, string directoryPath)
+        private void ProcessDirectory(Worker instance, string outputPath, string directoryPath)
         {
             // Get info on the  directory we're viewing.
             DirectoryInfo dirInfo = new DirectoryInfo(directoryPath);

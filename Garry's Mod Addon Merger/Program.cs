@@ -338,7 +338,7 @@ namespace Tamewater.GMOD_AddonMerger
             List<string> finalAddons = new List<string>();
 
             // Loop over every addon and check if it should be ignored.
-            for (int i=0; i< addons.Length; i++)
+            for (int i=0; i<addons.Length; i++)
             {
                 if (excludedAddons.Contains(Path.GetFileName(addons[i])))
                     Console.WriteLine("Ignoring {0}...", addons[i]);
@@ -365,8 +365,8 @@ namespace Tamewater.GMOD_AddonMerger
             Worker[] workers = new Worker[numThreads];
             for (int i = 0; i < numThreads; i++)
             {
-                string[] addonPaths = addons.GetRange(0 + (i * addonsPerThread), Math.Min(addons.Count - (i * addonsPerThread), addonsPerThread)).ToArray();
-                workers[i] = new Worker(i + 1, outputDirectory, addonPaths, new WorkerOptions()
+                string[] addonPaths = addons.GetRange(0 + (i*addonsPerThread), Math.Min(addons.Count - (i*addonsPerThread), addonsPerThread)).ToArray();
+                workers[i] = new Worker(i+1, outputDirectory, addonPaths, new WorkerOptions()
                 {
                     canOverwriteConflicts = OVERWRITE_CONFLICTS,
                     canLog = LOG
@@ -381,12 +381,12 @@ namespace Tamewater.GMOD_AddonMerger
             {
                 Thread.Sleep(50);
 
-                for (int i = 0; i < numThreads; i++)
+                for (int i=0; i<numThreads; i++)
                 {
                     if (workers[i].IsAlive())
                         break;
 
-                    if (i == numThreads - 1)
+                    if (i == numThreads-1)
                         isFinished = true;
                 }
             }

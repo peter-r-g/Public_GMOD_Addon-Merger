@@ -3,8 +3,8 @@ An easy to use text and dialog based tool with a more advanced interaction for c
 
 ## Getting Started
 ### Prerequisites
-[.NET Framework 4.7.2](https://dotnet.microsoft.com/download/dotnet-framework/net472)
-[Visual Studio 20XX](https://visualstudio.microsoft.com/vs/) (Only if you plan to contribute, solution has only been tested in VS 2019)
+* [.NET Framework 4.7.2](https://dotnet.microsoft.com/download/dotnet-framework/net472)
+* [Visual Studio 20XX](https://visualstudio.microsoft.com/vs/) (Only if you plan to contribute, solution has only been tested in VS 2019)
 ### Installing
 For users:
 If you plan to just use the tool, see the releases page.

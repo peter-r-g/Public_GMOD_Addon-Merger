@@ -1,4 +1,4 @@
-# Garry's Mod Addon Merger (Windows Only)
+# Garry's Mod Addon Merger (Windows only for now)
 An easy to use text and dialog based tool with a more advanced interaction for command-line users. What this tool does is you can take a folder full of other folders (like a Garry's Mod dedicated servers addons folder) and merge them all under a single folder. Useful if you'd like to compress all of your addons to a single folder or you'd like to eliminate any duplicate files within your server structure.
 
 ## Getting Started

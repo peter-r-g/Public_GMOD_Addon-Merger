@@ -11,7 +11,8 @@ namespace Tamewater.GMOD_AddonMerger
     class Program
     {
         // Constants.
-        private static readonly string DEFAULT_JSON_PATH = $"{Application.StartupPath}\\ignore.json";
+        private static readonly string STARTUP_PATH = Application.StartupPath;
+        private static readonly string DEFAULT_JSON_PATH = $"{STARTUP_PATH}\\ignore.json";
         private static readonly string DEFAULT_MERGE_DIR = "_MERGED";
 
         // Globals.
@@ -356,6 +357,14 @@ namespace Tamewater.GMOD_AddonMerger
         /// <param name="outputDirectory">The directory path to place the merged files in.</param>
         private static void MergeAddons(List<string> addons, string outputDirectory)
         {
+            // Setup log directories.
+            if (LOG)
+            {
+                Directory.CreateDirectory($"{STARTUP_PATH}\\temp");
+                Directory.CreateDirectory($"{STARTUP_PATH}\\temp\\errors");
+                Directory.CreateDirectory($"{STARTUP_PATH}\\temp\\conflicts");
+            }
+
             // Calculate how many threads we can use and how many addons need to be spread between them.
             int numThreads = Math.Min((int)Math.Ceiling((double)addons.Count / ADDONS_PER_THREAD), MAX_THREADS);
             int addonsPerThread = Math.Max((int)Math.Ceiling((double)addons.Count / numThreads), ADDONS_PER_THREAD);
@@ -392,6 +401,36 @@ namespace Tamewater.GMOD_AddonMerger
             }
 
             Console.WriteLine("Finished merging {0} addons into {1}!", addons.Count, outputDirectory);
+
+            // Compile logs and delete temp directories/files.
+            if (LOG)
+            {
+                Console.WriteLine("Compiling logs...");
+                List<string> errorsLog = new List<string>();
+                List<string> conflictsLog = new List<string>();
+
+                // Build log files data.
+                for (int i=0; i<numThreads; i++)
+                {
+                    string workerString = $"-- Worker {i+1} --";
+                    errorsLog.Add(workerString);
+                    errorsLog.AddRange(File.ReadAllLines(String.Format(Worker.logLocation, "errors", i+1)));
+                    errorsLog.Add("");
+
+                    conflictsLog.Add(workerString);
+                    conflictsLog.AddRange(File.ReadLines(String.Format(Worker.logLocation, "conflicts", i+1)));
+                    conflictsLog.Add("");
+                }
+
+                // Write files.
+                File.WriteAllLines($"{STARTUP_PATH}\\errors.txt", errorsLog.ToArray());
+                File.WriteAllLines($"{STARTUP_PATH}\\conflicts.txt", conflictsLog.ToArray());
+
+                // Cleanup.
+                Directory.Delete($"{STARTUP_PATH}\\temp", true);
+            }
+
+            // Finish with a pause.
             Pause();
         }
     }

@@ -1,15 +1,22 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace Tamewater.GMOD_AddonMerger
 {
     class Worker
     {
+        // Globals.
+        public static string logLocation = Application.StartupPath + "\\temp\\{0}\\{1}.dat";
+
         // Instance variables.
         private ProcessingThreadInfo info;
         private Thread workerThread;
         private WorkerOptions options;
+        private List<string> errors;
+        private List<string> conflicts;
 
         /// <summary>
         /// Creates a new instance of Worker. This is used to handle a processing thread.
@@ -33,6 +40,13 @@ namespace Tamewater.GMOD_AddonMerger
 
             // Create the worker thread.
             workerThread = new Thread(new ParameterizedThreadStart(ProcessThread));
+
+            // Instantiate list objects if we are logging.
+            if (options.canLog)
+            {
+                errors = new List<string>();
+                conflicts = new List<string>();
+            }
         }
 
         /// <summary>
@@ -80,6 +94,29 @@ namespace Tamewater.GMOD_AddonMerger
                 Console.WriteLine("{0} Finished processing addon: {1}", workerThreadString, addonPath);
             }
             Console.WriteLine("{0} Finished merging {1} addons into {2}", workerThreadString, addons.Length, outputDirectory);
+
+            // Write logs to temp files.
+            if (instance.options.canLog)
+            {
+                Console.WriteLine("{0} Writing logs to file...", workerThreadString);
+
+                // Format paths
+                string errorPath = String.Format(logLocation, "errors", processingThreadNum);
+                string conflictPath = String.Format(logLocation, "conflicts", processingThreadNum);
+                // Write errors
+                if (instance.errors.Count != 0)
+                    File.WriteAllLines(errorPath, instance.errors.ToArray());
+                else
+                    File.WriteAllLines(errorPath, new string[] { "No Errors!" });
+
+                // Write conflicts
+                if (instance.conflicts.Count != 0)
+                    File.WriteAllLines(conflictPath, instance.conflicts.ToArray());
+                else
+                    File.WriteAllLines(conflictPath, new string[] { "No Conflicts!" });
+            }
+
+            Console.WriteLine("{0} Worker finished.", workerThreadString);
         }
 
         /// <summary>
@@ -102,7 +139,16 @@ namespace Tamewater.GMOD_AddonMerger
                 }
                 catch (IOException e)
                 {
-                    Console.Write("!---------------!\nFile exception occurred!\n{0}\n!---------------!", e.Message);
+                    // Log the failure.
+                    if (instance.options.canLog)
+                    {
+                        // Conflict.
+                        if (e.Message.EndsWith("already exists."))
+                            instance.conflicts.Add(file.FullName);
+                        // Some sort of error.
+                        else
+                            instance.errors.Add(e.Message);
+                    }
                 }
             }
 

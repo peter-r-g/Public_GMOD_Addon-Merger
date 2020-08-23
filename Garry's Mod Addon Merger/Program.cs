@@ -78,13 +78,13 @@ namespace Tamewater.GMOD_AddonMerger
                 // Check if the help argument was passed.
                 if (arguments.ContainsKey("help"))
                 {
-                    Console.WriteLine("\nGarry's Mod Addon Merger (Created by gunman435)");
+                    Console.WriteLine("\nGarry's Mod Addon Merger");
                     Console.WriteLine("Valid arguments to provide to this executable are:");
                     Console.WriteLine("\t-help : Provides this help menu.");
                     Console.WriteLine("\t-addons : The path to the addons folder to merge.");
                     Console.WriteLine("\t-output : The path to the output folder. (Omit to place it in -addons argument under the \"{0}\" directory)", DEFAULT_MERGE_DIR);
                     Console.WriteLine("\t-maxThreads : The max amount of processing threads that can be created.");
-                    Console.WriteLine("\t-addonsPerThread : The max amount of addons that can be provided to each thread. (Ignored if maxThreads is exceeded)");
+                    Console.WriteLine("\t-addonsPerThread : The max amount of addons that can be provided to each thread. (Ignored if the max threads is exceeded)");
                     Console.WriteLine("\t-ignoreJSON : Path to a JSON file that is an array of addon names that can be ignored.");
                     Console.WriteLine("\t-overwriteConflicts : Flag that will allow the program to overwrite existing files.");
                     Console.WriteLine("\t-log : Flag that will let errors and conflicts be logged.");

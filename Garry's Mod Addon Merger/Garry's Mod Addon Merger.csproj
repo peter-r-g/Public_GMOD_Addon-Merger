@@ -6,12 +6,15 @@
     <RootNamespace>Tamewater.GMOD_AddonMerger</RootNamespace>
     <StartupObject>Tamewater.GMOD_AddonMerger.Program</StartupObject>
     <ApplicationIcon>icon.ico</ApplicationIcon>
-    <Version>2.0.0</Version>
+    <Version>2.1.0</Version>
     <Company>Tamewater</Company>
     <Authors>gunman435</Authors>
     <PackageProjectUrl>https://github.com/tamewater/Public_GMOD_Addon-Merger</PackageProjectUrl>
     <Description>Utility program made in C# to merge multiple folders into one.</Description>
     <RepositoryUrl>https://github.com/tamewater/Public_GMOD_Addon-Merger</RepositoryUrl>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
+    <PackageTags>Garry's Mod, GMOD, Addons, Addon Merger</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

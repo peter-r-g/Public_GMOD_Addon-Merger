@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using System.Windows.Forms;
 
 namespace Tamewater.GMOD_AddonMerger
 {
     class Worker
     {
         // Globals.
-        public static string logLocation = Application.StartupPath + "\\temp\\{0}\\{1}.dat";
+        public static string logLocation = Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName) + "\\temp\\{0}\\{1}.dat";
 
         // Instance variables.
         private ProcessingThreadInfo info;

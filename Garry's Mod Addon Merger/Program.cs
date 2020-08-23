@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Threading;
-using System.Windows.Forms;
 using Newtonsoft.Json;
 
 namespace Tamewater.GMOD_AddonMerger
@@ -11,7 +9,7 @@ namespace Tamewater.GMOD_AddonMerger
     class Program
     {
         // Constants.
-        private static readonly string STARTUP_PATH = Application.StartupPath;
+        private static readonly string STARTUP_PATH = Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
         private static readonly string DEFAULT_JSON_PATH = $"{STARTUP_PATH}\\ignore.json";
         private static readonly string DEFAULT_MERGE_DIR = "_MERGED";
 
@@ -21,24 +19,8 @@ namespace Tamewater.GMOD_AddonMerger
         private static bool OVERWRITE_CONFLICTS = false;
         private static bool LOG = false;
 
-        // Indicate that this thread is a single threaded apartment since FolderBrowserDialog requires it.
-        [STAThread]
         private static int Main(string[] args)
         {
-            // Load Newtonsoft.Json embedded resource. Code sourced and modified from http://adamthetech.com/2011/06/embed-dll-files-within-an-exe-c-sharp-winforms/
-            AppDomain.CurrentDomain.AssemblyResolve += (sender, assemblyArgs) =>
-            {
-                string resourceName = new AssemblyName(assemblyArgs.Name).Name + ".dll";
-                string resource = Array.Find(typeof(Program).Assembly.GetManifestResourceNames(), element => element.EndsWith(resourceName));
-
-                using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resource))
-                {
-                    Byte[] assemblyData = new Byte[stream.Length];
-                    stream.Read(assemblyData, 0, assemblyData.Length);
-                    return Assembly.Load(assemblyData);
-                }
-            };
-
             // Parse arguments.
             Dictionary<string, string> arguments = ParseArguments(args);
 
@@ -53,86 +35,41 @@ namespace Tamewater.GMOD_AddonMerger
                 // Load excluded addons from default path.
                 excludedAddons = LoadExcludedAddons(DEFAULT_JSON_PATH);
 
-                Console.WriteLine("Select a folder that contains your addons...");
-
                 // Get the addons directory.
-                using (FolderBrowserDialog dialog = new FolderBrowserDialog())
+                do
                 {
-                    dialog.ShowNewFolderButton = false;
-                    dialog.Description = "Select a folder that contains your addons";
-                    dialog.RootFolder = Environment.SpecialFolder.MyComputer;
+                    Console.WriteLine("Enter a folder that contains your addons...");
+                    addonDirectory = Console.ReadLine();
+                } while (!Path.IsPathRooted(addonDirectory));
 
-                    // Keep looping till we get some sort of response.
-                    while (addonDirectory == string.Empty)
-                    {
-                        switch (dialog.ShowDialog())
-                        {
-                            // Got a valid path.
-                            case DialogResult.OK:
-                                addonDirectory = dialog.SelectedPath;
-                                break;
-                            // Hacky solution to getting out. Application.Exit doesn't work in an STAThread.
-                            case DialogResult.Cancel:
-                                Console.WriteLine("Dialog cancelled, try again? (Y/N)");
-                                if (GetKey() != 'y')
-                                    addonDirectory = "QUIT";
-                                break;
-                            // Handle unexpected codes some-what gracefully.
-                            default:
-                                Console.WriteLine("Unexpected result occured, please restart.");
-                                Pause();
-                                addonDirectory = "QUIT";
-                                break;
-                        }
-                    }
+                // Get all addon directories.
+                string[] addons = Directory.GetDirectories(addonDirectory);
+                Console.WriteLine("Found {0} folders within {1}", addons.Length, addonDirectory);
+                // Filter addons.
+                List<string> finalAddons = FilterAddons(excludedAddons, addons);
+
+                // Check if we have any addons left.
+                if (finalAddons.Count == 0)
+                {
+                    Console.WriteLine("No addons to merge. Please restart and try again.");
+                    Pause();
                 }
-
-                // Check if we aren't just getting out.
-                if (addonDirectory != "QUIT")
+                else
                 {
-                    // Get all addon directories.
-                    string[] addons = Directory.GetDirectories(addonDirectory);
-                    Console.WriteLine("Found {0} folders within {1}", addons.Length, addonDirectory);
-                    // Filter addons.
-                    List<string> finalAddons = FilterAddons(excludedAddons, addons);
-
-                    // Check if we have any addons left.
-                    if (finalAddons.Count == 0)
+                    // Get an output directory.
+                    do
                     {
-                        Console.WriteLine("No addons to merge. Please restart and try again.");
-                        Pause();
-                    }
-                    else
-                    {
-                        Console.WriteLine("Select an output folder, cancelling will default to {0}\\{1}", addonDirectory, DEFAULT_MERGE_DIR);
-                        // Get an output directory.
-                        using (FolderBrowserDialog dialog = new FolderBrowserDialog())
-                        {
-                            dialog.ShowNewFolderButton = true;
-                            dialog.Description = $"Select an output folder, cancel to default to {addonDirectory}\\{DEFAULT_MERGE_DIR}";
-                            dialog.RootFolder = Environment.SpecialFolder.MyComputer;
+                        Console.WriteLine("Enter an output folder, entering \"default\" will default to {0}\\{1}", addonDirectory, DEFAULT_MERGE_DIR);
+                        outputDirectory = Console.ReadLine();
+                        Console.WriteLine(outputDirectory.ToLower() != "default" || !Path.IsPathRooted(outputDirectory));
+                    } while (outputDirectory.ToLower() != "default" && !Path.IsPathRooted(outputDirectory));
 
-                            switch (dialog.ShowDialog())
-                            {
-                                // Got a valid output.
-                                case DialogResult.OK:
-                                    outputDirectory = dialog.SelectedPath;
-                                    break;
-                                // Resort to default output location.
-                                case DialogResult.Cancel:
-                                    outputDirectory = $"{addonDirectory}\\{DEFAULT_MERGE_DIR}";
-                                    break;
-                                // Handle unexpected codes gracefully.
-                                default:
-                                    Console.WriteLine("Unexpected result occured, resorting to default.");
-                                    outputDirectory = $"{addonDirectory}\\{DEFAULT_MERGE_DIR}";
-                                    break;
-                            }
-                        }
+                    // Resort to default.
+                    if (outputDirectory.ToLower() == "default")
+                        outputDirectory = $"{addonDirectory}\\{DEFAULT_MERGE_DIR}";
 
-                        // Start the merging process.
-                        MergeAddons(finalAddons, outputDirectory);
-                    }
+                    // Start the merging process.
+                    MergeAddons(finalAddons, outputDirectory);
                 }
             }
             // Got arguments, run in command line.
@@ -150,7 +87,7 @@ namespace Tamewater.GMOD_AddonMerger
                     Console.WriteLine("\t-addonsPerThread : The max amount of addons that can be provided to each thread. (Ignored if maxThreads is exceeded)");
                     Console.WriteLine("\t-ignoreJSON : Path to a JSON file that is an array of addon names that can be ignored.");
                     Console.WriteLine("\t-overwriteConflicts : Flag that will allow the program to overwrite existing files.");
-                    Console.WriteLine("\t-log : Flag that will let errors and conflicts to be logged.");
+                    Console.WriteLine("\t-log : Flag that will let errors and conflicts be logged.");
                     Console.WriteLine("Execution Examples:");
                     Console.WriteLine("\t\"Garry's Mod Addon Merger.exe\" -help");
                     Console.WriteLine("\t\"Garry's Mod Addon Merger.exe\" -addons C:\\GMOD_Servers\\Server\\garrysmod\\addons\n");

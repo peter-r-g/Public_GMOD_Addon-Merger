@@ -210,20 +210,6 @@ namespace Tamewater.GMOD_AddonMerger
         }
 
         /// <summary>
-        /// Small helper function to read a key and return what was pressed.
-        /// </summary>
-        /// <returns>The character that was pressed.</returns>
-        private static char GetKey()
-        {
-            // Read key.
-            ConsoleKeyInfo info = Console.ReadKey();
-            // Write a new line so the command prompt doesn't get weird formatting.
-            Console.WriteLine();
-            
-            return info.KeyChar;
-        }
-
-        /// <summary>
         /// Small helper function to pause the console like in the command-line "pause" keyword.
         /// </summary>
         private static void Pause()

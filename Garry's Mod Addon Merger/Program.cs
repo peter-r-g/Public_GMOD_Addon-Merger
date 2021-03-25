@@ -215,7 +215,14 @@ namespace Tamewater.GMOD_AddonMerger
         private static void Pause()
         {
             Console.WriteLine("Press any key to continue...");
-            Console.ReadKey();
+            try
+            {
+                Console.ReadKey();
+            }
+            catch (InvalidOperationException)
+            {
+                Console.WriteLine("Failed to pause program, has console input been redirected?");
+            }
         }
 
         /// <summary>

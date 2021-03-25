@@ -25,8 +25,8 @@ namespace Tamewater.GMOD_AddonMerger
             Dictionary<string, string> arguments = ParseArguments(args);
 
             // Locals.
-            string addonDirectory = string.Empty;
-            string outputDirectory = string.Empty;
+            string addonDirectory;
+            string outputDirectory;
             List<string> excludedAddons;
 
             // No arguments, run in regular window + console mode.

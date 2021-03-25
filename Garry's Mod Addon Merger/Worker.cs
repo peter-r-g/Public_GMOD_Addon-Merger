@@ -12,10 +12,10 @@ namespace Tamewater.GMOD_AddonMerger
 
         // Instance variables.
         private ProcessingThreadInfo info;
-        private Thread workerThread;
+        private readonly Thread workerThread;
         private WorkerOptions options;
-        private List<string> errors;
-        private List<string> conflicts;
+        private readonly List<string> errors;
+        private readonly List<string> conflicts;
 
         /// <summary>
         /// Creates a new instance of Worker. This is used to handle a processing thread.
